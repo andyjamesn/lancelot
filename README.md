@@ -56,10 +56,10 @@ Plan
 ### Updating
 
 To update to the latest version:
-```bash
-rm -rf ~/.claude/plugins/marketplaces/andyjamesn-lancelot
 ```
-Then reinstall using the commands above.
+/plugins
+```
+Then select **Manage Marketplaces** → choose **andyjamesn/lancelot** → **Update Marketplace**.
 
 ## Commands
 

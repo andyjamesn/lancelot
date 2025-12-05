@@ -41,29 +41,63 @@ Plan
 
 ## Parallel Execution
 
-Because each subtask targets exactly one file, you can run multiple Claude Code instances in parallel—each working on a different subtask without conflicts.
+Because each subtask targets exactly one file, you can execute multiple subtasks in parallel—either with multiple terminals or using the built-in `/lancelot:parallel` command.
+
+### Using `/lancelot:parallel`
+
+```bash
+# Auto-select and run next 3 pending subtasks
+/lancelot:parallel
+
+# Run specific subtasks
+/lancelot:parallel abc123 def456 ghi789
+
+# Run next 5 pending subtasks
+/lancelot:parallel --count 5
+```
+
+The command:
+1. Validates subtasks can run in parallel (no conflicts)
+2. Spawns multiple agents simultaneously
+3. Each agent implements one subtask (one file)
+4. Reports results when all complete
+5. Prompts you to review each
 
 ```
-/lancelot/plan
-      │
-      ▼
-  Generate subtasks (each = one file)
-      │
-      ▼
+> /lancelot:parallel
+
+Finding next 3 pending subtasks...
+
+Spawning parallel agents:
+├─ Agent 1: abc123 → src/models/User.ts
+├─ Agent 2: def456 → src/services/AuthService.ts  
+└─ Agent 3: ghi789 → src/controllers/AuthController.ts
+
+⏳ Executing in parallel...
+
+✅ All 3 subtasks completed!
+
+Review each:
+  /lancelot:review abc123
+  /lancelot:review def456
+  /lancelot:review ghi789
+```
+
+### Manual Parallel Execution
+
+You can also run multiple Claude Code terminals:
+
+```
 ┌──────────────────────────────────────────────┐
 │  Terminal 1        Terminal 2        Terminal 3  │
-│  Claude Agent 1    Claude Agent 2    Claude Agent 3  │
 │       │                 │                 │      │
 │       ▼                 ▼                 ▼      │
-│  /lancelot/prompt   /lancelot/prompt  /lancelot/prompt │
+│  /lancelot:prompt   /lancelot:prompt  /lancelot:prompt │
 │     abc123             def456            ghi789   │
 │       │                 │                 │      │
 │       ▼                 ▼                 ▼      │
 │  UserService.ts    UserForm.vue     userRoutes.ts │
 └──────────────────────────────────────────────┘
-      │
-      ▼
-  Review each as they complete
 ```
 
 ### Why This Works
@@ -72,27 +106,16 @@ Because each subtask targets exactly one file, you can run multiple Claude Code 
 - **3-5x faster** — Parallelize your feature development
 - **Independent review** — Review and approve each file separately
 - **Failure isolation** — One subtask failing doesn't block others
-- **Natural batching** — Group related subtasks by dependency
-
-### How To Use
-
-1. Run `/lancelot/plan` to create your plan
-2. Run `/lancelot/status` to see all subtasks
-3. Open multiple terminals with Claude Code
-4. In each terminal, run `/lancelot/prompt <different-subtask-id>`
-5. Review each with `/lancelot/review` as they complete
-
-The one-file-per-subtask constraint isn't a limitation—it's what makes parallel execution possible.
+- **Dependency detection** — Lancelot warns if subtasks can't run in parallel
 
 ## Features
 
 - **Atomic Planning**: Break features into milestones → tasks → subtasks → steps
 - **One File Per Subtask**: Each subtask targets exactly one file—no sprawling changes
-- **Parallel Execution**: Run multiple Claude instances on different subtasks
-- **Review Gates**: Only `/lancelot/review` can mark work complete
+- **Parallel Execution**: `/lancelot:parallel` runs multiple subtasks simultaneously
+- **Review Gates**: Only `/lancelot:review` can mark work complete
 - **Stop Points**: Claude pauses after implementation, waits for review
 - **Stack Expertise**: Auto-detect your tech stack and apply best practices
-- **Parallel Agents**: Fast codebase exploration with specialized agents
 - **Confidence Scoring**: Reviews only flag issues at 80+ confidence
 - **Convention Following**: Automatically matches your codebase patterns
 
@@ -132,7 +155,7 @@ git clone https://github.com/andyjamesn/lancelot.git ~/lancelot
 ### 1. Initialize in your project
 
 ```
-/lancelot/init
+/lancelot:init
 ```
 
 This analyzes your codebase and creates `.lancelot/config.json` with detected:
@@ -145,7 +168,7 @@ This analyzes your codebase and creates `.lancelot/config.json` with detected:
 Discuss what you want to build, then:
 
 ```
-/lancelot/plan
+/lancelot:plan
 ```
 
 Lancelot will:
@@ -156,9 +179,15 @@ Lancelot will:
 
 ### 3. Implement subtasks
 
+**Sequential (one at a time):**
 ```
-/lancelot/next          # See what's next
-/lancelot/prompt abc123 # Implement subtask abc123
+/lancelot:next          # See what's next
+/lancelot:prompt abc123 # Implement subtask abc123
+```
+
+**Parallel (multiple at once):**
+```
+/lancelot:parallel      # Run next 3 subtasks in parallel
 ```
 
 After implementation, Claude will **STOP** and wait for review.
@@ -166,32 +195,33 @@ After implementation, Claude will **STOP** and wait for review.
 ### 4. Review and complete
 
 ```
-/lancelot/review abc123
+/lancelot:review abc123
 ```
 
 Reviews the implementation against plan steps. Only reports issues at 80+ confidence. If approved, asks for confirmation before marking complete.
 
 ### 5. Repeat
 
-Continue with `/lancelot/next` until the plan is complete.
+Continue with `/lancelot:next` or `/lancelot:parallel` until the plan is complete.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `/lancelot/init` | Initialize Lancelot, detect stack, create config |
-| `/lancelot/plan` | Create implementation plan from conversation |
-| `/lancelot/status` | Show current plan progress |
-| `/lancelot/next` | Show next subtask to implement |
-| `/lancelot/prompt <id>` | Implement a specific subtask |
-| `/lancelot/review <id>` | Review implementation, mark complete |
+| `/lancelot:init` | Initialize Lancelot, detect stack, create config |
+| `/lancelot:plan` | Create implementation plan from conversation |
+| `/lancelot:status` | Show current plan progress |
+| `/lancelot:next` | Show next subtask to implement |
+| `/lancelot:prompt <id>` | Implement a specific subtask |
+| `/lancelot:review <id>` | Review implementation, mark complete |
+| `/lancelot:parallel [ids]` | Execute multiple subtasks in parallel |
 
 ## The Workflow
 
 ### Planning Phase
 
 ```
-/lancelot/plan
+/lancelot:plan
       │
       ▼
 ┌─────────────────────┐
@@ -218,10 +248,9 @@ Continue with `/lancelot/next` until the plan is complete.
 
 ### Implementation Cycle
 
-For each subtask (one file at a time):
-
+**Sequential:**
 ```
-/lancelot/prompt {id}
+/lancelot:prompt {id}
       │
       ▼
   Implement (ONE file only)
@@ -230,19 +259,28 @@ For each subtask (one file at a time):
   ⛔ STOP — Wait for user
       │
       ▼
-/lancelot/review {id}
-      │
-      ▼
-  Review against steps
-      │
-      ▼
-  Ask: "Mark complete?"
+/lancelot:review {id}
       │
       ▼
   ⛔ STOP — Wait for user
+```
+
+**Parallel:**
+```
+/lancelot:parallel
       │
       ▼
-  (repeat with next subtask)
+┌─────────────────────────────┐
+│ Agent 1 → file1.ts          │
+│ Agent 2 → file2.ts          │
+│ Agent 3 → file3.ts          │
+└─────────────────────────────┘
+      │
+      ▼
+  All complete
+      │
+      ▼
+  Review each: /lancelot:review {id}
 ```
 
 ## Project Config

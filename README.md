@@ -39,86 +39,6 @@ Plan
 - Nothing gets marked complete without your approval
 - Claude can't "run ahead" and make sweeping changes
 
-## Parallel Execution
-
-Because each subtask targets exactly one file, you can execute multiple subtasks in parallel—either with multiple terminals or using the built-in `/lancelot:parallel` command.
-
-### Using `/lancelot:parallel`
-
-```bash
-# Auto-select and run next 3 pending subtasks
-/lancelot:parallel
-
-# Run specific subtasks
-/lancelot:parallel abc123 def456 ghi789
-
-# Run next 5 pending subtasks
-/lancelot:parallel --count 5
-```
-
-The command:
-1. Validates subtasks can run in parallel (no conflicts)
-2. Spawns multiple agents simultaneously
-3. Each agent implements one subtask (one file)
-4. Reports results when all complete
-5. Prompts you to review each
-
-```
-> /lancelot:parallel
-
-Finding next 3 pending subtasks...
-
-Spawning parallel agents:
-├─ Agent 1: abc123 → src/models/User.ts
-├─ Agent 2: def456 → src/services/AuthService.ts  
-└─ Agent 3: ghi789 → src/controllers/AuthController.ts
-
-⏳ Executing in parallel...
-
-✅ All 3 subtasks completed!
-
-Review each:
-  /lancelot:review abc123
-  /lancelot:review def456
-  /lancelot:review ghi789
-```
-
-### Manual Parallel Execution
-
-You can also run multiple Claude Code terminals:
-
-```
-┌──────────────────────────────────────────────┐
-│  Terminal 1        Terminal 2        Terminal 3  │
-│       │                 │                 │      │
-│       ▼                 ▼                 ▼      │
-│  /lancelot:prompt   /lancelot:prompt  /lancelot:prompt │
-│     abc123             def456            ghi789   │
-│       │                 │                 │      │
-│       ▼                 ▼                 ▼      │
-│  UserService.ts    UserForm.vue     userRoutes.ts │
-└──────────────────────────────────────────────┘
-```
-
-### Why This Works
-
-- **No git conflicts** — Different files = clean merges
-- **3-5x faster** — Parallelize your feature development
-- **Independent review** — Review and approve each file separately
-- **Failure isolation** — One subtask failing doesn't block others
-- **Dependency detection** — Lancelot warns if subtasks can't run in parallel
-
-## Features
-
-- **Atomic Planning**: Break features into milestones → tasks → subtasks → steps
-- **One File Per Subtask**: Each subtask targets exactly one file—no sprawling changes
-- **Parallel Execution**: `/lancelot:parallel` runs multiple subtasks simultaneously
-- **Review Gates**: Only `/lancelot:review` can mark work complete
-- **Stop Points**: Claude pauses after implementation, waits for review
-- **Stack Expertise**: Auto-detect your tech stack and apply best practices
-- **Confidence Scoring**: Reviews only flag issues at 80+ confidence
-- **Convention Following**: Automatically matches your codebase patterns
-
 ## Installation
 
 **1. Add the marketplace:**
@@ -141,69 +61,6 @@ rm -rf ~/.claude/plugins/marketplaces/andyjamesn-lancelot
 ```
 Then reinstall using the commands above.
 
-### Local Development
-
-For local development or testing:
-```bash
-git clone https://github.com/andyjamesn/lancelot.git ~/lancelot
-/plugin marketplace add ~/lancelot
-/plugin install lancelot@lancelot-marketplace
-```
-
-## Quick Start
-
-### 1. Initialize in your project
-
-```
-/lancelot:init
-```
-
-This analyzes your codebase and creates `.lancelot/config.json` with detected:
-- Tech stack (Laravel, Vue, React, etc.)
-- Coding patterns and conventions
-- Anti-patterns to avoid
-
-### 2. Create a plan
-
-Discuss what you want to build, then:
-
-```
-/lancelot:plan
-```
-
-Lancelot will:
-1. Explore your codebase (parallel agents)
-2. Ask clarifying questions (one at a time)
-3. Design a simple, focused plan
-4. Save to `.lancelot/plans/`
-
-### 3. Implement subtasks
-
-**Sequential (one at a time):**
-```
-/lancelot:next          # See what's next
-/lancelot:prompt abc123 # Implement subtask abc123
-```
-
-**Parallel (multiple at once):**
-```
-/lancelot:parallel      # Run next 3 subtasks in parallel
-```
-
-After implementation, Claude will **STOP** and wait for review.
-
-### 4. Review and complete
-
-```
-/lancelot:review abc123
-```
-
-Reviews the implementation against plan steps. Only reports issues at 80+ confidence. If approved, asks for confirmation before marking complete.
-
-### 5. Repeat
-
-Continue with `/lancelot:next` or `/lancelot:parallel` until the plan is complete.
-
 ## Commands
 
 | Command | Description |
@@ -216,12 +73,61 @@ Continue with `/lancelot:next` or `/lancelot:parallel` until the plan is complet
 | `/lancelot:review <id>` | Review implementation, mark complete |
 | `/lancelot:parallel [ids]` | Execute multiple subtasks in parallel |
 
-## The Workflow
+---
 
-### Planning Phase
+## Command Reference
+
+### `/lancelot:init`
+
+**Initialize Lancelot in your project.**
+
+Run this once per project to analyze your codebase and create a configuration file.
+
+```
+/lancelot:init
+```
+
+**What it does:**
+1. Scans your project for `package.json`, `composer.json`, config files
+2. Detects your tech stack (Laravel, Vue, React, etc.)
+3. Identifies coding patterns and conventions
+4. Creates `.lancelot/config.json` with detected settings
+5. Asks if you want to customize anything
+
+**Output:**
+```
+.lancelot/
+├── config.json    ← Project configuration
+└── plans/         ← Plans will be saved here
+```
+
+**When to use:**
+- First time using Lancelot in a project
+- After major stack changes
+- To regenerate config with `--force`
+
+---
+
+### `/lancelot:plan`
+
+**Create an implementation plan from your conversation.**
+
+Discuss what you want to build with Claude, then run this command to formalize it into a structured plan.
 
 ```
 /lancelot:plan
+```
+
+**What it does:**
+1. Summarizes requirements from your conversation
+2. Launches parallel agents to explore your codebase
+3. Asks clarifying questions (one at a time)
+4. Designs a simple, focused implementation plan
+5. Saves to `.lancelot/plans/{uuid}.json`
+
+**The planning flow:**
+```
+Your conversation
       │
       ▼
 ┌─────────────────────┐
@@ -230,58 +136,324 @@ Continue with `/lancelot:next` or `/lancelot:parallel` until the plan is complet
 └─────────────────────┘
       │
       ▼
-  Clarifying Questions (one at a time)
+Clarifying questions (one at a time)
       │
       ▼
 ┌─────────────────┐
-│ plan-architect  │ → Simple, focused design
+│ plan-architect  │ → Designs the plan
 └─────────────────┘
       │
       ▼
 ┌─────────────────┐
-│ plan-builder    │ → Valid JSON
+│ plan-builder    │ → Generates JSON
 └─────────────────┘
       │
       ▼
-  Save to .lancelot/plans/
+Saved to .lancelot/plans/
 ```
 
-### Implementation Cycle
+**Tips:**
+- Be specific about what you want before running
+- The more context in the conversation, the better the plan
+- Lancelot will ask questions if requirements are unclear
 
-**Sequential:**
+---
+
+### `/lancelot:status`
+
+**Show the current plan's progress.**
+
+```
+/lancelot:status
+```
+
+**Output:**
+```
+────────────────────────────────────────────
+Plan: Add user authentication
+ID: a1b2c3d4
+
+Progress: 4/12 subtasks (33%)
+[████████░░░░░░░░░░░░] 
+
+Milestones:
+├─ ✅ Setup authentication config
+├─ 🔄 Implement login flow (2/4 tasks)
+│  ├─ ✅ Create User model
+│  ├─ 🔄 Add login endpoint (1/3 subtasks)
+│  │  ├─ ✅ Create route handler
+│  │  ├─ ➡️ Add validation ← NEXT
+│  │  └─ ⬚ Add tests
+│  └─ ⬚ Add logout endpoint
+└─ ⬚ Add session management
+
+Next: a1b2c3d4 — Add validation
+────────────────────────────────────────────
+```
+
+**When to use:**
+- To see overall progress
+- To find the next subtask ID
+- To understand what's left
+
+---
+
+### `/lancelot:next`
+
+**Show details of the next subtask to implement.**
+
+```
+/lancelot:next
+```
+
+**Output:**
+```
+────────────────────────────────────────────
+Next Subtask
+
+ID: a1b2c3d4
+Title: Add request validation
+File: src/requests/LoginRequest.ts (create)
+
+Milestone: Implement login flow
+Task: Add login endpoint
+
+Description:
+Create a validation request class for login credentials
+
+Steps (3):
+1. Create LoginRequest class with email and password rules
+2. Add validation error messages
+3. Export from requests/index.ts
+
+Complexity: low
+────────────────────────────────────────────
+
+⏭ Run: /lancelot:prompt a1b2c3d4
+```
+
+**When to use:**
+- Before starting implementation
+- To see what's coming up
+- To decide if you want to run parallel instead
+
+---
+
+### `/lancelot:prompt <id>`
+
+**Implement a specific subtask.**
+
+```
+/lancelot:prompt a1b2c3d4
+```
+
+You can use the full UUID or just the first 8 characters.
+
+**What it does:**
+1. Loads the subtask from the plan
+2. Reads the target file (if modifying)
+3. Finds reference code and patterns
+4. Implements all steps for that ONE file
+5. **STOPS and waits for review**
+
+**The cycle:**
 ```
 /lancelot:prompt {id}
       │
       ▼
-  Implement (ONE file only)
+Implement (ONE file only)
       │
       ▼
-  ⛔ STOP — Wait for user
+⛔ STOP
       │
       ▼
-/lancelot:review {id}
-      │
-      ▼
-  ⛔ STOP — Wait for user
+"Run /lancelot:review {id} to verify"
 ```
 
-**Parallel:**
+**Important:**
+- Claude will STOP after implementation
+- It will NOT auto-continue to the next subtask
+- It will NOT mark the subtask complete
+- You must run `/lancelot:review` next
+
+---
+
+### `/lancelot:review <id>`
+
+**Review an implementation and mark it complete.**
+
+```
+/lancelot:review a1b2c3d4
+```
+
+**What it does:**
+1. Loads the subtask and its steps
+2. Reads the implemented file
+3. Launches `code-reviewer` agent (opus model)
+4. Checks each step against the code
+5. Only reports issues at 80+ confidence
+6. Asks for confirmation before marking complete
+
+**Output (approved):**
+```
+────────────────────────────────────────────
+Review: Add request validation
+
+File: src/requests/LoginRequest.ts
+ID: a1b2c3d4
+
+Step Analysis:
+✅ Step 1: Create LoginRequest class — satisfied
+✅ Step 2: Add validation messages — satisfied
+✅ Step 3: Export from index.ts — satisfied
+
+Result: APPROVED
+
+All steps satisfied. Mark this subtask as complete?
+Reply 'yes' to confirm.
+────────────────────────────────────────────
+```
+
+**Output (needs work):**
+```
+────────────────────────────────────────────
+Review: Add request validation
+
+Step Analysis:
+✅ Step 1: Create LoginRequest class — satisfied
+⚠️ Step 2: Add validation messages — Issue (Confidence: 85)
+   Missing: Custom message for email format
+✅ Step 3: Export from index.ts — satisfied
+
+Result: NEEDS WORK
+
+Fix the issue, then run:
+/lancelot:review a1b2c3d4
+────────────────────────────────────────────
+```
+
+**Important:**
+- Only `/lancelot:review` can mark subtasks complete
+- Requires explicit 'yes' to confirm
+- Claude STOPS after review—won't auto-continue
+
+---
+
+### `/lancelot:parallel [ids]`
+
+**Execute multiple subtasks simultaneously.**
+
+Because each subtask targets one file, they can run in parallel without conflicts.
+
+**Usage:**
+```bash
+# Auto-select next 3 pending subtasks
+/lancelot:parallel
+
+# Run specific subtasks
+/lancelot:parallel abc123 def456 ghi789
+
+# Run next 5 pending subtasks
+/lancelot:parallel --count 5
+```
+
+**What it does:**
+1. Validates subtasks can run in parallel (no conflicts)
+2. Spawns multiple agents simultaneously
+3. Each agent implements one subtask (one file)
+4. Reports results when all complete
+5. Prompts you to review each
+
+**Output:**
+```
+────────────────────────────────────────────
+⚡ Parallel Execution Complete
+
+Subtasks executed: 3
+
+Results:
+✅ abc123 — Create User model
+   File: src/models/User.ts
+   
+✅ def456 — Create Auth service
+   File: src/services/AuthService.ts
+
+✅ ghi789 — Add login route
+   File: src/routes/auth.ts
+
+────────────────────────────────────────────
+
+Review each:
+  /lancelot:review abc123
+  /lancelot:review def456
+  /lancelot:review ghi789
+────────────────────────────────────────────
+```
+
+**Dependency detection:**
+
+If subtasks can't run in parallel, Lancelot will warn you:
+```
+⚠️ Cannot run these subtasks in parallel:
+
+abc123 creates: src/services/UserService.ts
+def456 imports from: src/services/UserService.ts
+
+Suggestion: Run abc123 first, then def456
+```
+
+**Tips:**
+- Maximum recommended: 5 parallel subtasks
+- Review each subtask individually after completion
+- Great for independent files (models, components, routes)
+
+---
+
+## Typical Workflow
+
+### 1. Initialize (once per project)
+```
+/lancelot:init
+```
+
+### 2. Plan your feature
+```
+> I want to add user authentication with login, logout, and session management
+
+/lancelot:plan
+```
+
+### 3. Check the plan
+```
+/lancelot:status
+```
+
+### 4. Implement
+
+**Option A: Sequential**
+```
+/lancelot:next
+/lancelot:prompt abc123
+/lancelot:review abc123
+# repeat...
+```
+
+**Option B: Parallel**
 ```
 /lancelot:parallel
-      │
-      ▼
-┌─────────────────────────────┐
-│ Agent 1 → file1.ts          │
-│ Agent 2 → file2.ts          │
-│ Agent 3 → file3.ts          │
-└─────────────────────────────┘
-      │
-      ▼
-  All complete
-      │
-      ▼
-  Review each: /lancelot:review {id}
+/lancelot:review abc123
+/lancelot:review def456
+/lancelot:review ghi789
+# repeat...
 ```
+
+### 5. Continue until done
+```
+/lancelot:status   # Check progress
+/lancelot:next     # What's next?
+```
+
+---
 
 ## Project Config
 
@@ -315,6 +487,8 @@ Continue with `/lancelot:next` or `/lancelot:parallel` until the plan is complet
 
 This config is injected into agents, making them experts in YOUR stack.
 
+---
+
 ## Agents
 
 | Agent | Model | Purpose |
@@ -324,6 +498,8 @@ This config is injected into agents, making them experts in YOUR stack.
 | `plan-architect` | sonnet | Design simple, focused plans |
 | `plan-builder` | sonnet | Generate valid Plan JSON |
 | `code-reviewer` | opus | High-quality implementation review |
+
+---
 
 ## Philosophy
 
@@ -336,6 +512,8 @@ Lancelot plans should be:
 - **Convention-compliant** — Match the codebase patterns
 - **Parallelizable** — Independent subtasks can run concurrently
 
+---
+
 ## File Structure
 
 ```
@@ -346,12 +524,7 @@ Lancelot plans should be:
 └── active-plan      # Current plan ID
 ```
 
-## Hooks
-
-Lancelot includes workflow enforcement hooks:
-
-- **lancelot-workflow-guard**: Warns on plan JSON modifications outside review
-- **lancelot-prompt-reminder**: Reminds about review after implementation
+---
 
 ## License
 

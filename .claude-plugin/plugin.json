@@ -12,15 +12,17 @@
     "workflow",
     "architecture",
     "code-review",
-    "project-management"
+    "project-management",
+    "parallel"
   ],
   "commands": [
-    "./commands/lancelot/init.md",
-    "./commands/lancelot/plan.md",
-    "./commands/lancelot/status.md",
-    "./commands/lancelot/next.md",
-    "./commands/lancelot/prompt.md",
-    "./commands/lancelot/review.md"
+    "./commands/init.md",
+    "./commands/plan.md",
+    "./commands/status.md",
+    "./commands/next.md",
+    "./commands/prompt.md",
+    "./commands/review.md",
+    "./commands/parallel.md"
   ],
   "agents": [
     "./agents/code-explorer.md",
@@ -30,7 +32,7 @@
     "./agents/code-reviewer.md"
   ],
   "skills": [
-    "./skills/lancelot"
+    "./skills"
   ],
   "hooks": [
     "./hooks/lancelot-workflow-guard.json",

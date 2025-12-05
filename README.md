@@ -15,13 +15,25 @@ Lancelot brings systematic, granular implementation planning to your Claude Code
 
 ## Installation
 
-```bash
-# From plugin marketplace (coming soon)
-/plugins install lancelot
+**1. Add the marketplace:**
+```
+/plugin marketplace add andyjamesn/lancelot
+```
 
-# Or clone and install locally
-git clone https://github.com/yourusername/lancelot
-/plugins install ./lancelot
+**2. Install the plugin:**
+```
+/plugin install lancelot@andyjamesn
+```
+
+**3. Restart Claude Code**
+
+### Local Development
+
+For local development or testing:
+```
+git clone https://github.com/andyjamesn/lancelot.git ~/lancelot
+/plugin marketplace add ~/lancelot
+/plugin install lancelot@local
 ```
 
 ## Quick Start

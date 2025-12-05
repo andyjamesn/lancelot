@@ -39,10 +39,56 @@ Plan
 - Nothing gets marked complete without your approval
 - Claude can't "run ahead" and make sweeping changes
 
+## Parallel Execution
+
+Because each subtask targets exactly one file, you can run multiple Claude Code instances in parallel—each working on a different subtask without conflicts.
+
+```
+/lancelot/plan
+      │
+      ▼
+  Generate subtasks (each = one file)
+      │
+      ▼
+┌──────────────────────────────────────────────┐
+│  Terminal 1        Terminal 2        Terminal 3  │
+│  Claude Agent 1    Claude Agent 2    Claude Agent 3  │
+│       │                 │                 │      │
+│       ▼                 ▼                 ▼      │
+│  /lancelot/prompt   /lancelot/prompt  /lancelot/prompt │
+│     abc123             def456            ghi789   │
+│       │                 │                 │      │
+│       ▼                 ▼                 ▼      │
+│  UserService.ts    UserForm.vue     userRoutes.ts │
+└──────────────────────────────────────────────┘
+      │
+      ▼
+  Review each as they complete
+```
+
+### Why This Works
+
+- **No git conflicts** — Different files = clean merges
+- **3-5x faster** — Parallelize your feature development
+- **Independent review** — Review and approve each file separately
+- **Failure isolation** — One subtask failing doesn't block others
+- **Natural batching** — Group related subtasks by dependency
+
+### How To Use
+
+1. Run `/lancelot/plan` to create your plan
+2. Run `/lancelot/status` to see all subtasks
+3. Open multiple terminals with Claude Code
+4. In each terminal, run `/lancelot/prompt <different-subtask-id>`
+5. Review each with `/lancelot/review` as they complete
+
+The one-file-per-subtask constraint isn't a limitation—it's what makes parallel execution possible.
+
 ## Features
 
 - **Atomic Planning**: Break features into milestones → tasks → subtasks → steps
 - **One File Per Subtask**: Each subtask targets exactly one file—no sprawling changes
+- **Parallel Execution**: Run multiple Claude instances on different subtasks
 - **Review Gates**: Only `/lancelot/review` can mark work complete
 - **Stop Points**: Claude pauses after implementation, waits for review
 - **Stack Expertise**: Auto-detect your tech stack and apply best practices
@@ -250,6 +296,7 @@ Lancelot plans should be:
 - **Atomic** — One file per subtask, one change per step
 - **Verifiable** — Every step can be checked
 - **Convention-compliant** — Match the codebase patterns
+- **Parallelizable** — Independent subtasks can run concurrently
 
 ## File Structure
 

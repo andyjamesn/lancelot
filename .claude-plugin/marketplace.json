@@ -1,10 +1,12 @@
 {
   "name": "lancelot-marketplace",
-  "description": "Lancelot - Structured implementation planning for Claude Code",
+  "owner": {
+    "name": "Andy James"
+  },
   "plugins": [
     {
       "name": "lancelot",
-      "path": ".",
+      "source": ".",
       "description": "Structured implementation planning with atomic steps, review gates, and stack-specific expertise"
     }
   ]

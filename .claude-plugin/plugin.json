@@ -2,8 +2,10 @@
   "name": "lancelot",
   "version": "1.0.0",
   "description": "Structured implementation planning with atomic steps, review gates, and stack-specific expertise",
-  "author": "Andy",
-  "repository": "https://github.com/yourusername/lancelot",
+  "author": {
+    "name": "Andy James"
+  },
+  "repository": "https://github.com/andyjamesn/lancelot",
   "keywords": [
     "planning",
     "implementation",
@@ -13,25 +15,25 @@
     "project-management"
   ],
   "commands": [
-    "lancelot/init",
-    "lancelot/plan",
-    "lancelot/status",
-    "lancelot/next",
-    "lancelot/prompt",
-    "lancelot/review"
+    "./commands/lancelot/init.md",
+    "./commands/lancelot/plan.md",
+    "./commands/lancelot/status.md",
+    "./commands/lancelot/next.md",
+    "./commands/lancelot/prompt.md",
+    "./commands/lancelot/review.md"
   ],
   "agents": [
-    "code-explorer",
-    "conventions-checker",
-    "plan-architect",
-    "plan-builder",
-    "code-reviewer"
+    "./agents/code-explorer.md",
+    "./agents/conventions-checker.md",
+    "./agents/plan-architect.md",
+    "./agents/plan-builder.md",
+    "./agents/code-reviewer.md"
   ],
   "skills": [
-    "lancelot"
+    "./skills/lancelot"
   ],
   "hooks": [
-    "lancelot-workflow-guard",
-    "lancelot-prompt-reminder"
+    "./hooks/lancelot-workflow-guard.json",
+    "./hooks/lancelot-prompt-reminder.json"
   ]
 }

@@ -1,0 +1,7 @@
+{
+  "name": "lancelot-prompt-reminder",
+  "description": "Reminds to run review after implementing a subtask",
+  "event": "stop",
+  "action": "warn",
+  "message": "⏸️ BEFORE YOU FINISH\n\nIf you just implemented a Lancelot subtask:\n→ Did you tell the user to run /lancelot/review?\n→ Did you STOP and wait (not auto-continue)?\n\nIf you're mid-workflow, remind the user of the next step."
+}

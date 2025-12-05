@@ -1,0 +1,8 @@
+{
+  "name": "lancelot-workflow-guard",
+  "description": "Warns on plan JSON modifications outside of /lancelot/review",
+  "event": "file_write",
+  "pattern": "\\.lancelot/plans/.*\\.json$",
+  "action": "warn",
+  "message": "⚠️ LANCELOT WORKFLOW WARNING\n\nYou are modifying a plan JSON file.\n\nOnly /lancelot/review should modify plan status.\nIf you're marking something complete outside of review, STOP.\n\nThe workflow is:\n  /lancelot/prompt → implement → STOP\n  /lancelot/review → approve → mark complete → STOP"
+}

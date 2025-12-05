@@ -1,0 +1,37 @@
+{
+  "name": "lancelot",
+  "version": "1.0.0",
+  "description": "Structured implementation planning with atomic steps, review gates, and stack-specific expertise",
+  "author": "Andy",
+  "repository": "https://github.com/yourusername/lancelot",
+  "keywords": [
+    "planning",
+    "implementation",
+    "workflow",
+    "architecture",
+    "code-review",
+    "project-management"
+  ],
+  "commands": [
+    "lancelot/init",
+    "lancelot/plan",
+    "lancelot/status",
+    "lancelot/next",
+    "lancelot/prompt",
+    "lancelot/review"
+  ],
+  "agents": [
+    "code-explorer",
+    "conventions-checker",
+    "plan-architect",
+    "plan-builder",
+    "code-reviewer"
+  ],
+  "skills": [
+    "lancelot"
+  ],
+  "hooks": [
+    "lancelot-workflow-guard",
+    "lancelot-prompt-reminder"
+  ]
+}

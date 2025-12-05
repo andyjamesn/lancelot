@@ -27,6 +27,30 @@ $ARGUMENTS
 
 ## Workflow
 
+### Step 0: Ask for Spec Doc
+
+**ALWAYS ask this question before reviewing:**
+
+```
+────────────────────────────────────────────
+📋 Spec Document Alignment Check
+
+Is there a spec doc that this implementation must align with?
+
+This could be:
+- A PRD or requirements document
+- A design doc or RFC  
+- An API specification
+- Any markdown file with context
+
+Enter the file path or URL, or press Enter to skip:
+> 
+────────────────────────────────────────────
+```
+
+- If user provides a path/URL: Read the spec doc content
+- If user presses Enter/skips: Proceed without spec alignment
+
 ### Step 1: Load Context
 
 1. Read UUID from `.lancelot/active-plan`
@@ -49,6 +73,21 @@ Steps to verify:
 
 Current file contents:
 {file contents}
+
+{IF spec_doc PROVIDED}
+## Spec Document Context
+
+This implementation must align with the following spec:
+
+---
+{spec_doc_content}
+---
+
+When reviewing, also verify:
+- Implementation matches spec requirements
+- No deviations from spec without justification
+- All spec-defined behaviors are present
+{END IF}
 
 Analyze each step and provide evidence-based assessment."
 ```

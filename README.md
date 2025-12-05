@@ -75,6 +75,7 @@ Then select **Manage Marketplaces** → choose **andyjamesn/lancelot** → **Upd
 | `/lancelot:prompt <id>` | Implement a specific subtask |
 | `/lancelot:review <id>` | Review implementation, mark complete |
 | `/lancelot:parallel [ids]` | Execute multiple subtasks in parallel |
+| `/lancelot:parallel-review [ids]` | Review multiple subtasks in parallel |
 
 ---
 
@@ -301,12 +302,24 @@ Implement (ONE file only)
 ```
 
 **What it does:**
-1. Loads the subtask and its steps
-2. Reads the implemented file
-3. Launches `code-reviewer` agent (opus model)
-4. Checks each step against the code
-5. Only reports issues at 80+ confidence
-6. Asks for confirmation before marking complete
+1. **Asks for spec doc** — Optional PRD/RFC/design doc for alignment checking
+2. Loads the subtask and its steps
+3. Reads the implemented file
+4. Launches `code-reviewer` agent (opus model)
+5. Checks for hallucinations, over-engineering, and step compliance
+6. Categorizes issues as Critical/Major/Minor
+7. Asks for confirmation before marking complete
+
+**Spec doc question:**
+```
+📋 Spec Document Alignment Check
+
+Is there a spec doc that this implementation must align with?
+Enter the file path or URL, or press Enter to skip:
+> 
+```
+
+If you provide a spec doc, the reviewer will also verify the implementation matches the spec requirements.
 
 **Output (approved):**
 ```
@@ -420,6 +433,89 @@ Suggestion: Run abc123 first, then def456
 - Maximum recommended: 5 parallel subtasks
 - Review each subtask individually after completion
 - Great for independent files (models, components, routes)
+
+---
+
+### `/lancelot:parallel-review [ids]`
+
+**Review multiple completed subtasks simultaneously.**
+
+After running `/lancelot:parallel`, use this to review all implementations at once.
+
+**Usage:**
+```bash
+# Auto-select next 3 completed (unreviewed) subtasks
+/lancelot:parallel-review
+
+# Review specific subtasks
+/lancelot:parallel-review abc123 def456 ghi789
+
+# Review next 5 completed subtasks
+/lancelot:parallel-review --count 5
+```
+
+**Spec doc question (asked once for all reviews):**
+```
+📋 Spec Document Alignment Check
+
+Is there a spec doc that this implementation must align with?
+Enter the file path or URL, or press Enter to skip:
+> ./docs/feature-prd.md
+```
+
+If provided, every review agent will verify alignment against the spec.
+
+**What it does:**
+1. Asks for spec doc (shared across all reviews)
+2. Spawns multiple `code-reviewer` agents simultaneously
+3. Each agent reviews one subtask for:
+   - Hallucinations (Critical)
+   - Over-engineering (Major)
+   - Step compliance
+   - Spec alignment (if provided)
+4. Reports summary of all reviews
+
+**Output:**
+```
+────────────────────────────────────────────
+🔍 Parallel Review Complete
+
+Subtasks reviewed: 3
+Spec alignment: ./docs/feature-prd.md
+
+Results:
+────────────────────────────────────────────
+
+✅ APPROVED: abc123 — Create User model
+   File: src/models/User.ts
+   Issues: 0 Critical, 0 Major, 1 Minor
+
+⚠️ NEEDS WORK: def456 — Create Auth service
+   File: src/services/AuthService.ts
+   Issues: 1 Critical, 2 Major, 0 Minor
+   Critical: Hallucinated import 'validateEmail'
+
+✅ APPROVED: ghi789 — Add login route
+   File: src/routes/auth.ts
+   Issues: 0 Critical, 0 Major, 0 Minor
+
+────────────────────────────────────────────
+
+Summary:
+- ✅ Approved: 2
+- ⚠️ Needs Work: 1
+- Total Critical Issues: 1
+
+Fix issues then re-review:
+  /lancelot:review def456
+────────────────────────────────────────────
+```
+
+**Tips:**
+- Use after `/lancelot:parallel` to review all at once
+- Spec doc is asked once and shared across all agents
+- Maximum recommended: 5 parallel reviews
+- Approved subtasks still need explicit 'yes' to mark complete
 
 ---
 

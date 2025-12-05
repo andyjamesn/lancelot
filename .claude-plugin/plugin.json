@@ -22,7 +22,8 @@
     "./commands/next.md",
     "./commands/prompt.md",
     "./commands/review.md",
-    "./commands/parallel.md"
+    "./commands/parallel.md",
+    "./commands/parallel-review.md"
   ],
   "agents": [
     "./agents/code-explorer.md",
@@ -31,9 +32,7 @@
     "./agents/plan-builder.md",
     "./agents/code-reviewer.md"
   ],
-  "skills": [
-    "./skills"
-  ],
+  "skills": ["./skills"],
   "hooks": [
     "./hooks/lancelot-workflow-guard.json",
     "./hooks/lancelot-prompt-reminder.json"

@@ -12,6 +12,7 @@ Lancelot enforces a disciplined workflow:
 2. **One file at a time** — Each subtask targets exactly ONE file, making changes traceable and reviewable
 3. **Review gates** — Code can't be marked "complete" without explicit review and approval
 4. **Stop points** — Claude pauses after each implementation, waiting for your review before continuing
+5. **Parallel execution** — Because each subtask is one file, multiple agents can work simultaneously without conflicts
 
 ### The Problem
 
@@ -20,6 +21,7 @@ Without structure, AI-assisted coding often leads to:
 - Multi-file changes that are hard to review
 - Skipped steps and forgotten edge cases
 - No clear checkpoint to verify work
+- Sequential execution—one file at a time, even when parallelization is possible
 
 ### The Solution
 
@@ -38,6 +40,7 @@ Plan
 - You can verify each piece before moving on
 - Nothing gets marked complete without your approval
 - Claude can't "run ahead" and make sweeping changes
+- **Multiple agents can work in parallel**—no conflicts, no merge issues, 3-5x faster development
 
 ## Installation
 

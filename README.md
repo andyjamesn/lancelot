@@ -2,12 +2,49 @@
 
 > Structured implementation planning for Claude Code
 
-Lancelot brings systematic, granular implementation planning to your Claude Code workflow. Break down features into atomic steps, enforce review gates, and leverage stack-specific expertise.
+## Why Lancelot?
+
+When Claude builds features, it often jumps straight into coding—making decisions on the fly, touching multiple files at once, and sometimes going in circles. **Lancelot changes that.**
+
+Lancelot enforces a disciplined workflow:
+
+1. **Plan first** — Break down work into atomic, verifiable steps before writing code
+2. **One file at a time** — Each subtask targets exactly ONE file, making changes traceable and reviewable
+3. **Review gates** — Code can't be marked "complete" without explicit review and approval
+4. **Stop points** — Claude pauses after each implementation, waiting for your review before continuing
+
+### The Problem
+
+Without structure, AI-assisted coding often leads to:
+- Scope creep ("while I'm here, let me also refactor...")
+- Multi-file changes that are hard to review
+- Skipped steps and forgotten edge cases
+- No clear checkpoint to verify work
+
+### The Solution
+
+Lancelot breaks features into a hierarchy:
+
+```
+Plan
+├── Milestone (feature-level)
+│   └── Task (component-level)
+│       └── Subtask (ONE file) ← The unit of work
+│           └── Steps (atomic changes)
+```
+
+**The key insight: one file per subtask.** This means:
+- Every change is isolated and reviewable
+- You can verify each piece before moving on
+- Nothing gets marked complete without your approval
+- Claude can't "run ahead" and make sweeping changes
 
 ## Features
 
 - **Atomic Planning**: Break features into milestones → tasks → subtasks → steps
+- **One File Per Subtask**: Each subtask targets exactly one file—no sprawling changes
 - **Review Gates**: Only `/lancelot/review` can mark work complete
+- **Stop Points**: Claude pauses after implementation, waits for review
 - **Stack Expertise**: Auto-detect your tech stack and apply best practices
 - **Parallel Agents**: Fast codebase exploration with specialized agents
 - **Confidence Scoring**: Reviews only flag issues at 80+ confidence
@@ -27,13 +64,21 @@ Lancelot brings systematic, granular implementation planning to your Claude Code
 
 **3. Restart Claude Code**
 
+### Updating
+
+To update to the latest version:
+```bash
+rm -rf ~/.claude/plugins/marketplaces/andyjamesn-lancelot
+```
+Then reinstall using the commands above.
+
 ### Local Development
 
 For local development or testing:
-```
+```bash
 git clone https://github.com/andyjamesn/lancelot.git ~/lancelot
 /plugin marketplace add ~/lancelot
-/plugin install lancelot@local
+/plugin install lancelot@lancelot-marketplace
 ```
 
 ## Quick Start
@@ -51,11 +96,13 @@ This analyzes your codebase and creates `.lancelot/config.json` with detected:
 
 ### 2. Create a plan
 
+Discuss what you want to build, then:
+
 ```
 /lancelot/plan
 ```
 
-Discuss what you want to build, then run this command. Lancelot will:
+Lancelot will:
 1. Explore your codebase (parallel agents)
 2. Ask clarifying questions (one at a time)
 3. Design a simple, focused plan
@@ -76,7 +123,7 @@ After implementation, Claude will **STOP** and wait for review.
 /lancelot/review abc123
 ```
 
-Reviews the implementation against plan steps. Only approves issues at 80+ confidence. If approved, asks for confirmation before marking complete.
+Reviews the implementation against plan steps. Only reports issues at 80+ confidence. If approved, asks for confirmation before marking complete.
 
 ### 5. Repeat
 
@@ -95,15 +142,16 @@ Continue with `/lancelot/next` until the plan is complete.
 
 ## The Workflow
 
+### Planning Phase
+
 ```
 /lancelot/plan
       │
       ▼
-┌─────────────────┐
-│ code-explorer ×2│ (parallel)
-│ conventions-    │
-│ checker         │
-└─────────────────┘
+┌─────────────────────┐
+│ code-explorer ×2    │ (parallel)
+│ conventions-checker │
+└─────────────────────┘
       │
       ▼
   Clarifying Questions (one at a time)
@@ -122,22 +170,33 @@ Continue with `/lancelot/next` until the plan is complete.
   Save to .lancelot/plans/
 ```
 
-Then for each subtask:
+### Implementation Cycle
+
+For each subtask (one file at a time):
 
 ```
 /lancelot/prompt {id}
       │
       ▼
-  Implement
+  Implement (ONE file only)
       │
       ▼
-  ⛔ STOP
+  ⛔ STOP — Wait for user
       │
       ▼
 /lancelot/review {id}
       │
       ▼
-  ⛔ STOP
+  Review against steps
+      │
+      ▼
+  Ask: "Mark complete?"
+      │
+      ▼
+  ⛔ STOP — Wait for user
+      │
+      ▼
+  (repeat with next subtask)
 ```
 
 ## Project Config
@@ -184,13 +243,13 @@ This config is injected into agents, making them experts in YOUR stack.
 
 ## Philosophy
 
-> "Keep it simple. Follow conventions. Ask questions."
+> "Keep it simple. Follow conventions. Ask questions. One file at a time."
 
 Lancelot plans should be:
-- **Minimal** - Only what's needed
-- **Convention-compliant** - Match the codebase
-- **Atomic** - Small, verifiable steps
-- **Clear** - Anyone can follow them
+- **Minimal** — Only what's needed, no over-engineering
+- **Atomic** — One file per subtask, one change per step
+- **Verifiable** — Every step can be checked
+- **Convention-compliant** — Match the codebase patterns
 
 ## File Structure
 

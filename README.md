@@ -81,11 +81,17 @@ Then select **Manage Marketplaces** → choose **andyjamesn/lancelot** → **Upd
 
 **Initialize Lancelot in your project.**
 
-Run this once per project to analyze your codebase and create a configuration file.
-
 ```
 /lancelot:init
 ```
+
+**Why it matters:**
+
+Without initialization, Lancelot's agents are generic—they don't know if you're using Laravel or Express, Vue or React, Pest or Jest. The config file teaches them YOUR stack, so they:
+- Follow your framework's conventions (not generic patterns)
+- Use your preferred design patterns
+- Avoid approaches you don't use
+- Generate plans that fit your codebase
 
 **What it does:**
 1. Scans your project for `package.json`, `composer.json`, config files
@@ -101,10 +107,15 @@ Run this once per project to analyze your codebase and create a configuration fi
 └── plans/         ← Plans will be saved here
 ```
 
-**When to use:**
-- First time using Lancelot in a project
-- After major stack changes
-- To regenerate config with `--force`
+**When to run:**
+- **First time** — When starting with Lancelot in a project
+- **After adding dependencies** — Added a new framework? Re-run to detect it
+- **After major refactors** — Changed your architecture? Update the config
+- **When plans feel "off"** — If Lancelot suggests patterns you don't use, re-init
+
+**Re-running:**
+
+Running `/lancelot:init` again will ask if you want to regenerate. It won't delete your existing plans—only updates the config.
 
 ---
 

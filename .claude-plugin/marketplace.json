@@ -1,0 +1,11 @@
+{
+  "name": "lancelot-marketplace",
+  "description": "Lancelot - Structured implementation planning for Claude Code",
+  "plugins": [
+    {
+      "name": "lancelot",
+      "path": ".",
+      "description": "Structured implementation planning with atomic steps, review gates, and stack-specific expertise"
+    }
+  ]
+}
